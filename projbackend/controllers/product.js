@@ -27,8 +27,15 @@ exports.createProduct = (req, res) => {
         error: "Problem with Image",
       });
     }
+    //destructurethe fields
+    const { name, description, price, category, stock } = fields;
 
-    //TODO: restrictionon field
+    if (!name || !description || !price || !category || !stock) {
+      return res.satus(400).json({
+        error: "Please include all fields",
+      });
+    }
+
     let product = new Product(fields);
 
     //handle file here
