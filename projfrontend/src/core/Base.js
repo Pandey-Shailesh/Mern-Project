@@ -1,5 +1,5 @@
 import React from "react";
-
+import NavigationBar from "./NavigationBar";
 const Base = ({
   title = "Learn And Grow",
   description = "My description",
@@ -7,6 +7,7 @@ const Base = ({
   children,
 }) => (
   <div>
+    <NavigationBar/>
     <div className="container-fluid">
       <div className="jumbotron bg-dark text-white text-center">
         <h2 className="display-4">{title}</h2>
