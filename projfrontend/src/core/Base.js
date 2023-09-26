@@ -7,7 +7,7 @@ const Base = ({
   children,
 }) => (
   <div>
-    <NavigationBar/>
+    <NavigationBar />
     <div className="container-fluid">
       <div className="jumbotron bg-dark text-white text-center">
         <h2 className="display-4">{title}</h2>
