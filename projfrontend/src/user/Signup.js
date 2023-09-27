@@ -94,7 +94,7 @@ const Signup = () => {
               display: success ? "" : "none",
             }}
           >
-            New account was created Successfully. Please{" "}
+            New account was created Successfully. Please
             <Link to="/signin">Login Here</Link>
           </div>
         </div>
