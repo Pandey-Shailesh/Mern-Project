@@ -1,21 +1,102 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Base from "../core/Base";
 import { Link } from "react-router-dom";
+import { getAllCategories, createaProduct } from "./helper/adminapicall";
+import { isAuthenticated } from "../auth/helper/index";
 
 const AddProduct = () => {
+  const { user, token } = isAuthenticated();
+
   const [values, setValues] = useState({
     name: "",
     description: "",
     price: "",
     stock: "",
+    photo: "",
+    categories: [],
+    category: "",
+    loading: false,
+    error: "",
+    createdProduct: "",
+    getaRedirect: false,
+    formData: "",
   });
-  const { name, description, price, stock } = values;
-  const onSubmit = () => {
-    //
+
+  const {
+    name,
+    description,
+    price,
+    stock,
+    categories,
+    category,
+    loading,
+    error,
+    createdProduct,
+    getaRedirect,
+    formData,
+  } = values;
+
+  const preload = () => {
+    getAllCategories().then((data) => {
+      //console.log(data);
+      if (data.error) {
+        setValues({ ...values, error: data.error });
+      } else {
+        setValues({ ...values, categories: data, formData: new FormData() });
+      }
+    });
   };
+
+  useEffect(() => {
+    preload();
+  }, []);
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+    setValues({ ...values, error: "", loading: true });
+    createaProduct(user._id, token, formData).then((data) => {
+      if (data.error) {
+        setValues({ ...values, error: data.error });
+      } else {
+        setValues({
+          ...values,
+          name: "",
+          description: "",
+          price: "",
+          photo: "",
+          stock: "",
+          loading: false,
+          createdProduct: data.name,
+        });
+      }
+    });
+  };
+
   const handleChange = (name) => (event) => {
-    //
+    const value = name === "photo" ? event.target.files[0] : event.target.value;
+    formData.set(name, value);
+    setValues({ ...values, [name]: value });
   };
+
+  const successMessage = () => (
+    <div
+      className="alert alert-success mt-3"
+      style={{ display: createdProduct ? "" : "none" }}
+    >
+      <h4>{createdProduct} created successfully</h4>
+    </div>
+  );
+
+  //Todo
+  //add one more method to for redirectthe page after the creating the product into admin adshboard
+//   const warningMessage = () => (
+//     <div
+//       className="alert alert-danger mt-3"
+//       style={{ display: createdProduct ? "" : "none" }}
+//     >
+//       <h4>Failed to create Product </h4>
+//     </div>
+//   );
   const createProductForm = () => (
     <form>
       <span>Post photo</span>
@@ -64,16 +145,20 @@ const AddProduct = () => {
           placeholder="Category"
         >
           <option>Select</option>
-          <option value="a">a</option>
-          <option value="b">b</option>
+          {categories &&
+            categories.map((cate, index) => (
+              <option key={index} value={cate._id}>
+                {cate.name}
+              </option>
+            ))}
         </select>
       </div>
       <div className="form-group">
         <input
-          onChange={handleChange("quantity")}
+          onChange={handleChange("stock")}
           type="number"
           className="form-control"
-          placeholder="Quantity"
+          placeholder="Stock"
           value={stock}
         />
       </div>
@@ -87,19 +172,25 @@ const AddProduct = () => {
       </button>
     </form>
   );
+
   return (
     <Base
-      title="Add Product Here!"
-      description="Welcome to product creation Section"
+      title="Add a product here!"
+      description="Welcome to product creation section"
       className="container bg-info p-4"
     >
       <Link to="/admin/dashboard" className="btn btn-md btn-dark mb-3">
         Admin Home
       </Link>
       <div className="row bg-dark text-white rounded">
-        <div className="col-md-8 offset-md-2">{createProductForm()}</div>
+        <div className="col-md-8 offset-md-2">
+          {successMessage()}
+          {/* {warningMessage()} */}
+          {createProductForm()}
+        </div>
       </div>
     </Base>
   );
 };
+
 export default AddProduct;
