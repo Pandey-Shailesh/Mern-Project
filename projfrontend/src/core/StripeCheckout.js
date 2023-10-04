@@ -3,6 +3,9 @@ import { isAuthenticated } from "../auth/helper";
 import { cartEmpty, loadCart } from "./helper/cartHelper";
 import { Link } from "react-router-dom";
 import StripeCheckoutButton from "react-stripe-checkout";
+import { API } from "../backend";
+import { createOrder } from "./helper/orderHelper";
+
 const StripeCheckout = ({
   products,
   setReload = (f) => f,
@@ -26,12 +29,28 @@ const StripeCheckout = ({
     return amount;
   };
   const makePayment = (token) => {
-    //
+    const body = { token, products };
+    const headers = { "Content-type": "application/json" };
+    return fetch(`${API}/stripepayment`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    })
+      .then((response) => {
+        console.log("RESPONSE", response);
+        //call further methods
+        const { status } = response;
+        console.log("STATUS", status);
+        cartEmpty();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const showStripeButton = () => {
     return isAuthenticated() ? (
       <StripeCheckoutButton
-        stripeKey=""
+        stripeKey="pk_test_51NxUzqSEpVce6ryYyNMqNleWrY2uqJXf8dZmIlWeh8hycLTfEVFmDYh6G8lEojtB2Hki7g3t9lPBV704oDt7G92H00UopvMAU1"
         token={makePayment}
         amount={getFinalAmount() * 100}
         name="Buy Course"
