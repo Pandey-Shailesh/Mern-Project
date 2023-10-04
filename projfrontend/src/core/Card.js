@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
 import ImageHelper from "./helper/ImageHelper";
 import { Redirect } from "react-router-dom";
-import { addItemToCart } from "./helper/cartHelper";
+import { addItemToCart, removeItemFromCart } from "./helper/cartHelper";
 
-const Card = ({ product, addtoCart = true, removeFromCart = false }) => {
+const Card = ({
+  product,
+  addtoCart = true,
+  removeFromCart = false,
+  // setReload = function (f) {return f},
+  setReload = (f) => f,
+  reload = undefined,
+}) => {
   const [redirect, setRedirect] = useState(false);
   const [count, setCount] = useState(product.count);
 
@@ -15,13 +22,13 @@ const Card = ({ product, addtoCart = true, removeFromCart = false }) => {
     addItemToCart(product, () => setRedirect(true));
   };
 
-  const getARedirect = redirect => {
+  const getARedirect = (redirect) => {
     if (redirect) {
       return <Redirect to="/cart" />;
     }
   };
 
-  const showAddToCart = addtoCart => {
+  const showAddToCart = (addtoCart) => {
     return (
       addtoCart && (
         <button
@@ -34,11 +41,14 @@ const Card = ({ product, addtoCart = true, removeFromCart = false }) => {
     );
   };
 
-  const showRemoveFromCart = removeFromCart => {
+  const showRemoveFromCart = (removeFromCart) => {
     return (
       removeFromCart && (
         <button
-          onClick={() => {}}
+          onClick={() => {
+            removeItemFromCart(product._id);
+            setReload(!reload);
+          }}
           className="btn btn-block btn-outline-danger mt-2 mb-2"
         >
           Remove from cart
